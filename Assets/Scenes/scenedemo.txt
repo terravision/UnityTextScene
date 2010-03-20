@@ -1,0 +1,145 @@
+prefab Capsule
+assetpath Assets/Prefabs/Capsules.prefab, f0529f741bc2540eea3ec100e446c639
+3.32136 0.00000 0.00000
+0.00000 0.00000 -0.35426 0.93515
+1.00000 1.00000 1.00000
+
+gameobject Cube
+tag Untagged layer 0
+0.00000 -2.48280 0.00000
+0.00000 0.00000 0.00000 1.00000
+1.00000 1.00000 1.00000
+children 0
+components 3
+  UnityEngine.MeshFilter 1
+    property sharedMesh builtinmesh UnityEngine.Mesh = Cube
+  UnityEngine.BoxCollider 4
+    property center primitive UnityEngine.Vector3 = (0.0, 0.0, 0.0)
+    property size primitive UnityEngine.Vector3 = (1.0, 1.0, 1.0)
+    property extents primitive UnityEngine.Vector3 = (0.5, 0.5, 0.5)
+    property isTrigger primitive System.Boolean = False
+  UnityEngine.MeshRenderer 5
+    property castShadows primitive System.Boolean = True
+    property receiveShadows primitive System.Boolean = True
+    property sharedMaterials array UnityEngine.Material[] = 1
+        builtinmaterial UnityEngine.Material = Default-Diffuse
+    property lightmapIndex primitive System.Int32 = -1
+    property lightmapTilingOffset primitive UnityEngine.Vector4 = (1.0, 1.0, 0.0, 0.0)
+
+gameobject Cube
+tag Untagged layer 0
+3.00000 -2.48280 2.00000
+0.00000 0.00000 0.00000 1.00000
+1.00000 1.00000 1.00000
+children 1
+  gameobject Cube
+  tag Untagged layer 0
+  -10.00000 6.00000 0.00000
+  0.00000 0.00000 0.00000 1.00000
+  1.00000 1.00000 1.00000
+  children 0
+  components 3
+    UnityEngine.MeshFilter 1
+      property sharedMesh builtinmesh UnityEngine.Mesh = Cube
+    UnityEngine.BoxCollider 4
+      property center primitive UnityEngine.Vector3 = (0.0, 0.0, 0.0)
+      property size primitive UnityEngine.Vector3 = (1.0, 1.0, 1.0)
+      property extents primitive UnityEngine.Vector3 = (0.5, 0.5, 0.5)
+      property isTrigger primitive System.Boolean = False
+    UnityEngine.MeshRenderer 5
+      property castShadows primitive System.Boolean = True
+      property receiveShadows primitive System.Boolean = True
+      property sharedMaterials array UnityEngine.Material[] = 1
+          asset UnityEngine.Material = Assets/Materials/CustomMaterial.mat, CustomMaterial, e9b851d350fc14be09ce3ba99babfe07
+      property lightmapIndex primitive System.Int32 = -1
+      property lightmapTilingOffset primitive UnityEngine.Vector4 = (1.0, 1.0, 0.0, 0.0)
+components 3
+  UnityEngine.MeshFilter 1
+    property sharedMesh builtinmesh UnityEngine.Mesh = Cube
+  UnityEngine.BoxCollider 4
+    property center primitive UnityEngine.Vector3 = (0.0, 0.0, 0.0)
+    property size primitive UnityEngine.Vector3 = (1.0, 1.0, 1.0)
+    property extents primitive UnityEngine.Vector3 = (0.5, 0.5, 0.5)
+    property isTrigger primitive System.Boolean = False
+  UnityEngine.MeshRenderer 5
+    property castShadows primitive System.Boolean = True
+    property receiveShadows primitive System.Boolean = True
+    property sharedMaterials array UnityEngine.Material[] = 1
+        builtinmaterial UnityEngine.Material = Default-Diffuse
+    property lightmapIndex primitive System.Int32 = -1
+    property lightmapTilingOffset primitive UnityEngine.Vector4 = (1.0, 1.0, 0.0, 0.0)
+
+gameobject Directional light
+tag Untagged layer 0
+740.81120 66.71914 1054.85100
+0.37889 0.00000 0.00000 0.92544
+1.00000 1.00000 1.00000
+children 0
+components 1
+  UnityEngine.Light 12
+    property type primitive UnityEngine.LightType = Directional
+    property color primitive UnityEngine.Color = (1.000, 1.000, 1.000, 1.000)
+    property intensity primitive System.Single = 0.5
+    property shadows primitive UnityEngine.LightShadows = None
+    property shadowStrength primitive System.Single = 0.8
+    property shadowConstantBias primitive System.Single = 0.07
+    property shadowObjectSizeBias primitive System.Single = 0.01
+    property attenuate primitive System.Boolean = True
+    property range primitive System.Single = 10
+    property spotAngle primitive System.Single = 30
+    property renderMode primitive UnityEngine.LightRenderMode = Auto
+    property cullingMask primitive System.Int32 = -1
+
+gameobject Links
+tag Untagged layer 0
+8.54124 9.88922 -6.45947
+0.00000 0.00000 0.00000 1.00000
+1.00000 1.00000 1.00000
+children 0
+components 1
+  TextSceneLinkTest 5
+    field materialList array UnityEngine.Material[] = 0
+    field goLink scenelink UnityEngine.GameObject = /spheres/UniqueName
+    field transformLink scenelink UnityEngine.Transform = /Capsule/Capsule
+    field prefabLink asset UnityEngine.GameObject = Assets/Prefabs/Capsules.prefab, Capsules, f0529f741bc2540eea3ec100e446c639
+    field colliderLink scenelink UnityEngine.BoxCollider = /Cube/Cube
+
+gameobject Main Camera
+tag MainCamera layer 0
+0.00000 1.00000 -10.00000
+0.00000 0.00000 0.00000 1.00000
+1.00000 1.00000 1.00000
+children 0
+components 3
+  UnityEngine.Camera 15
+    property fov primitive System.Single = 60
+    property near primitive System.Single = 0.3
+    property far primitive System.Single = 1000
+    property fieldOfView primitive System.Single = 60
+    property nearClipPlane primitive System.Single = 0.3
+    property farClipPlane primitive System.Single = 1000
+    property orthographicSize primitive System.Single = 100
+    property orthographic primitive System.Boolean = False
+    property isOrthoGraphic primitive System.Boolean = False
+    property depth primitive System.Single = -1
+    property cullingMask primitive System.Int32 = -1
+    property backgroundColor primitive UnityEngine.Color = (0.192, 0.302, 0.475, 0.020)
+    property rect primitive UnityEngine.Rect = (0.00, 0.00, 1.00, 1.00)
+    property clearFlags primitive UnityEngine.CameraClearFlags = Skybox
+    property depthTextureMode primitive UnityEngine.DepthTextureMode = None
+  UnityEngine.GUILayer 0
+  UnityEngine.AudioListener 1
+    property velocityUpdateMode primitive UnityEngine.AudioVelocityUpdateMode = Dynamic
+
+textscene sceneinscene
+assetpath Assets/Scenes/sceneinscene.txt, 8a1bf9ef9a41f4f42b7d260235032519
+-7.54487 -4.46076 8.38350
+-0.60867 -0.12085 0.35437 0.69953
+1.00000 1.00000 1.00000
+
+textscene spheres
+assetpath Assets/Scenes/spheres.txt, 66152891b922a419fbdab4bf019657d1
+0.00000 0.00000 0.00000
+0.00000 0.00000 0.00000 1.00000
+1.00000 1.00000 1.00000
+

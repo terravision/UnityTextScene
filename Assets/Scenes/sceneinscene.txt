@@ -1,0 +1,54 @@
+prefab Capsules_instance
+assetpath Assets/Prefabs/Capsules.prefab, f0529f741bc2540eea3ec100e446c639
+-7.25459 -8.03027 -0.12661
+0.46448 0.00000 0.00000 0.88558
+1.76387 1.76387 1.76387
+
+gameobject ScaledSphere
+tag Untagged layer 0
+8.81933 0.00000 6.95787
+0.00000 0.00000 0.00000 1.00000
+1.73578 5.00000 1.73578
+children 0
+components 3
+  UnityEngine.MeshFilter 1
+    property sharedMesh builtinmesh UnityEngine.Mesh = Sphere
+  UnityEngine.SphereCollider 3
+    property center primitive UnityEngine.Vector3 = (0.0, 0.0, 0.0)
+    property radius primitive System.Single = 0.5000001
+    property isTrigger primitive System.Boolean = False
+  UnityEngine.MeshRenderer 5
+    property castShadows primitive System.Boolean = True
+    property receiveShadows primitive System.Boolean = True
+    property sharedMaterials array UnityEngine.Material[] = 1
+        asset UnityEngine.Material = Assets/Materials/CustomMaterial.mat, CustomMaterial, e9b851d350fc14be09ce3ba99babfe07
+    property lightmapIndex primitive System.Int32 = -1
+    property lightmapTilingOffset primitive UnityEngine.Vector4 = (1.0, 1.0, 0.0, 0.0)
+
+gameobject Sphere
+tag Untagged layer 0
+0.00000 0.00000 4.27119
+0.00000 0.00000 0.00000 1.00000
+2.96577 2.96577 2.96577
+children 0
+components 3
+  UnityEngine.MeshFilter 1
+    property sharedMesh builtinmesh UnityEngine.Mesh = Sphere
+  UnityEngine.SphereCollider 3
+    property center primitive UnityEngine.Vector3 = (0.0, 0.0, 0.0)
+    property radius primitive System.Single = 0.5000001
+    property isTrigger primitive System.Boolean = False
+  UnityEngine.MeshRenderer 5
+    property castShadows primitive System.Boolean = True
+    property receiveShadows primitive System.Boolean = True
+    property sharedMaterials array UnityEngine.Material[] = 1
+        asset UnityEngine.Material = Assets/Materials/CustomMaterial.mat, CustomMaterial, e9b851d350fc14be09ce3ba99babfe07
+    property lightmapIndex primitive System.Int32 = -1
+    property lightmapTilingOffset primitive UnityEngine.Vector4 = (1.0, 1.0, 0.0, 0.0)
+
+textscene spheres
+assetpath Assets/Scenes/spheres.txt, 66152891b922a419fbdab4bf019657d1
+0.00000 0.00000 0.00000
+0.00000 0.00000 0.00000 1.00000
+1.00000 1.00000 1.00000
+

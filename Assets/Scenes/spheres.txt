@@ -1,0 +1,63 @@
+gameobject Sphere
+tag Untagged layer 0
+0.00000 0.00000 0.00000
+0.00000 0.00000 0.00000 1.00000
+2.96577 2.96577 2.96577
+children 0
+components 3
+  UnityEngine.MeshFilter 1
+    property sharedMesh builtinmesh UnityEngine.Mesh = Sphere
+  UnityEngine.SphereCollider 3
+    property center primitive UnityEngine.Vector3 = (0.0, 0.0, 0.0)
+    property radius primitive System.Single = 0.5000001
+    property isTrigger primitive System.Boolean = False
+  UnityEngine.MeshRenderer 5
+    property castShadows primitive System.Boolean = True
+    property receiveShadows primitive System.Boolean = True
+    property sharedMaterials array UnityEngine.Material[] = 1
+        builtinmaterial UnityEngine.Material = Default-Diffuse
+    property lightmapIndex primitive System.Int32 = -1
+    property lightmapTilingOffset primitive UnityEngine.Vector4 = (1.0, 1.0, 0.0, 0.0)
+
+gameobject Sphere
+tag Untagged layer 0
+-4.66703 -7.40282 6.95787
+0.00000 0.00000 0.00000 1.00000
+1.73578 1.73578 1.73578
+children 0
+components 3
+  UnityEngine.MeshFilter 1
+    property sharedMesh builtinmesh UnityEngine.Mesh = Sphere
+  UnityEngine.SphereCollider 3
+    property center primitive UnityEngine.Vector3 = (0.0, 0.0, 0.0)
+    property radius primitive System.Single = 0.5000001
+    property isTrigger primitive System.Boolean = False
+  UnityEngine.MeshRenderer 5
+    property castShadows primitive System.Boolean = True
+    property receiveShadows primitive System.Boolean = True
+    property sharedMaterials array UnityEngine.Material[] = 1
+        builtinmaterial UnityEngine.Material = Default-Diffuse
+    property lightmapIndex primitive System.Int32 = -1
+    property lightmapTilingOffset primitive UnityEngine.Vector4 = (1.0, 1.0, 0.0, 0.0)
+
+gameobject UniqueName
+tag Untagged layer 0
+4.67459 0.00000 6.95787
+0.00000 0.00000 0.00000 1.00000
+1.73578 1.73578 1.73578
+children 0
+components 3
+  UnityEngine.MeshFilter 1
+    property sharedMesh builtinmesh UnityEngine.Mesh = Sphere
+  UnityEngine.SphereCollider 3
+    property center primitive UnityEngine.Vector3 = (0.0, 0.0, 0.0)
+    property radius primitive System.Single = 0.5000001
+    property isTrigger primitive System.Boolean = False
+  UnityEngine.MeshRenderer 5
+    property castShadows primitive System.Boolean = True
+    property receiveShadows primitive System.Boolean = True
+    property sharedMaterials array UnityEngine.Material[] = 1
+        builtinmaterial UnityEngine.Material = Default-Diffuse
+    property lightmapIndex primitive System.Int32 = -1
+    property lightmapTilingOffset primitive UnityEngine.Vector4 = (1.0, 1.0, 0.0, 0.0)
+
