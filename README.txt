@@ -58,7 +58,7 @@ Utility class that most importantly has functionality for reading/writing TextSc
 
 In random order:
 
-*Pro is required (at least for the build stuff, not sure about how the GUID resolves will break on Unity 'regular').
+*Pro is required (at least for the build stuff, not sure about how/if the asset reference GUID resolves will break on Unity 'regular' or using the Asset Server - the current project has External VCS enabled).
 
 *Currently, it is not possible to save and load prefabs *with instance changes*. Such changes will simply be ignored when saving, so they are not preserved.
 
@@ -73,8 +73,6 @@ In random order:
 *I have seen at a couple of occasions that Unity gives strange error messages regarding temp file overwrites. I have yet to figure out exactly why or when this happens, but I have not (yet) seen any loss of data - it happens to the temporary binary files, not the TextScenes themselves.
 
 *TextSceneObjects (scene-in-scene links) are not monitored for external changes.
-
-*Asset/prefab links are currently only resolved using their GUID, even though the full path is written to file. It should fallback to path if the GUID for some obscure reason is wrong, or missing (would make it easier to externally swap references by human readable paths instead of GUIDs). GUIDs have the nice benefit of letting the editor correctly track asset file moves. I'm not sure how GUIDs are handled when using the Asset Server or without VCS at all, the current project has External VCS enabled.
 
 *Prefabs seem to not revert correctly. The reverts arent 'recursive', so if you instantiate a prefab, move it's instance child around, select the root instance again and click 'revert' - nothing happens. You have to select the child itself and 'revert' that one. Given that instance changes to prefabs isn't currently supported, changes like this will automatically revert themselves when you save and re-load a scene. You have been warned ;)
 
