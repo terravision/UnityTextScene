@@ -11,9 +11,8 @@ TempScenes
 *.suo
 *.pidb
 *.userprefs
-ExportedObj
 Library/AssetServerCacheV3
-Library/AssetVersioning
+Library/AssetVersioning.db
 Library/BuildSettings.asset
 Library/EditorBuildSettings.asset
 Library/FailedAssetImports.txt
