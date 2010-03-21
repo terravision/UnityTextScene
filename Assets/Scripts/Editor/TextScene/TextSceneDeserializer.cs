@@ -8,8 +8,6 @@
 /// 		now somewhat async - the callback passed to Load should provide the caller with
 /// 		the binary name (the scene isn't fully loaded when Load returns, the TextSceneMonitor
 /// 		handles the rest).
-/// 		*Add safety check for value type on assignment - scripts could change type for a member,
-/// 		but keep the name. This will blow up if a scene assuming the old type is loaded.
 
 using UnityEngine;
 using UnityEditor;
@@ -681,41 +679,50 @@ public class TextSceneDeserializer
 	
 	private void AssignValue(object comp, string fieldType, string fieldName, object parameter)
 	{
-		if (fieldType == "field")
+		try
 		{
-			FieldInfo fi = comp.GetType().GetField(fieldName);
-		
-			if (fi != null)
+			if (fieldType == "field")
 			{
-				fi.SetValue(comp, parameter);
-			}
-			else
-				Debug.LogWarning("Failed to find field (" + fieldName + ") on object: " + comp.GetType().ToString());
-		}
-		else if (fieldType == "property")
-		{
-			PropertyInfo pi = comp.GetType().GetProperty(fieldName);
+				FieldInfo fi = comp.GetType().GetField(fieldName);
 			
-			if (pi != null)
-			{
-				MethodInfo mi = pi.GetSetMethod();
-				
-				if (mi != null)
+				if (fi != null)
 				{
-					object[] paramList = {parameter};
-					
-					//Debug.Log("Set property: " + fieldName);
-					
-					mi.Invoke(comp, paramList);
+					fi.SetValue(comp, parameter);
 				}
 				else
+					Debug.LogWarning("Failed to find field (" + fieldName + ") on object: " + comp.GetType().ToString());
+			}
+			else if (fieldType == "property")
+			{
+				PropertyInfo pi = comp.GetType().GetProperty(fieldName);
+				
+				if (pi != null)
 				{
-					Debug.LogWarning("No setter for property: " + fieldName);
+					MethodInfo mi = pi.GetSetMethod();
+					
+					if (mi != null)
+					{
+						object[] paramList = {parameter};
+						
+						//Debug.Log("Set property: " + fieldName);
+						
+						mi.Invoke(comp, paramList);
+					}
+					else
+					{
+						Debug.LogWarning("No setter for property: " + fieldName);
+					}
 				}
+				else
+					Debug.LogWarning("Failed to find property (" + fieldName + ") on object: " + comp.GetType().ToString());
+				
 			}
 			else
-				Debug.LogWarning("Failed to find property (" + fieldName + ") on object: " + comp.GetType().ToString());
-			
+				Debug.LogWarning("Assignment of '" + fieldName + "' failed - invalid field type: " + fieldType);
+		}
+		catch (System.Exception e)
+		{
+			Debug.LogWarning("Assignment of '" + fieldName + "' failed. Did it change type since the TextScene was saved? " + e.ToString());
 		}
 	}
 
