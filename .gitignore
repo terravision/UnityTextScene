@@ -1,0 +1,30 @@
+# Standard
+.DS_Store
+
+# Project specific
+obj
+Temp
+Build
+TempScenes
+*.csproj
+*.sln
+*.suo
+*.pidb
+*.userprefs
+ExportedObj
+Library/AssetServerCacheV3
+Library/AssetVersioning
+Library/BuildSettings.asset
+Library/EditorBuildSettings.asset
+Library/FailedAssetImports.txt
+Library/MonoManager.asset
+Library/ProjectUsesCompressTexturesOnImport
+Library/ScriptAssemblies
+Library/ScriptMapper
+Library/assetDatabase3
+Library/cache
+Library/expandedItems
+Library/guidmapper
+Library/metadata
+Library/unity default resources
+Library/unity editor resources
