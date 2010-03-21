@@ -446,11 +446,36 @@ public class TextSceneDeserializer
 	
 	private void DeserializeTextScene(StreamReader stream, string name, GameObject parent)
     {
-		string guid = stream.ReadLine().Trim().Split()[2];
+		string line = stream.ReadLine().Trim();
 		
-        string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+		char [] separators = new char [] {' ', ','};
+		
+        string[] parts = line.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
+		
+		string assetPath = null;
+		
+		//Expected format:
+		//  assetpath Asset/Path/asset, GUID
+		if (parts.Length > 1)
+		{
+			assetPath = parts[1].Trim();
+			
+			//Prefer GUID over path if present.
+			if (parts.Length > 2)
+			{
+				string guid = parts[2].Trim();
+		
+        			assetPath = AssetDatabase.GUIDToAssetPath(guid);
+			}
+		}
 
-        string fullPath = EditorHelper.GetProjectFolder() + assetPath;
+        if (assetPath == null)
+		{
+			Debug.LogError("Failed to get path for textscene object '" + name + "': " + line);
+			return;
+		}
+		
+		string fullPath = EditorHelper.GetProjectFolder() + assetPath;
 
         GameObject go = null;
           
@@ -476,7 +501,9 @@ public class TextSceneDeserializer
 				EditorUtility.DisplayDialog("Recursion guard", "Loading this TextScene (" + assetPath + ") into the current TextScene will throw you into an infinite recursion. Please remove the TextScene object (" + fullName + ") or change the TextScene it points to so it no longer results in a loop", "OK");
 			}
 			else
+			{
 				(new TextSceneDeserializer(go, recursionGuard)).LoadScene(fullPath);
+			}
 			
 			gameObjects.Enqueue(go);
 		}
@@ -495,21 +522,38 @@ public class TextSceneDeserializer
 
     private void DeserializePrefab(StreamReader stream, string name, GameObject parent)
     {
-        //Debug.Log("Loading Prefab: " + name);
+		GameObject prefab = null;
 		
-		string guid = stream.ReadLine().Trim().Split()[2];
+		string line = stream.ReadLine().Trim();
 		
-        string assetPath = AssetDatabase.GUIDToAssetPath(guid);
+        char [] separators = new char [] {' ', ','};
+		
+        string[] parts = line.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
+		
+		//Expected format:
+		//  assetpath Asset/Path/asset, GUID
+		if (parts.Length > 1)
+		{
+			string assetPath = parts[1].Trim();
+			
+			//Prefer GUID over path if present.
+			if (parts.Length > 2)
+			{
+				string guid = parts[2].Trim();
+		
+        			assetPath = AssetDatabase.GUIDToAssetPath(guid);
+			}
 
-        //Debug.Log("Asset path: " + assetPath);
 
-        GameObject prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+        		prefab = AssetDatabase.LoadAssetAtPath(assetPath, typeof(GameObject)) as GameObject;
+		}
+        		
+		if (prefab == null)
+        	{
+			Debug.LogError("Failed to load asset for object '" + name + "': " + line);
+			return;
+        	}
 
-        if (prefab == null)
-        {
-            Debug.LogError("Failed to load asset: " + assetPath);
-            return;
-        }
 
         GameObject go = null;
         
@@ -764,22 +808,41 @@ public class TextSceneDeserializer
 			{
 				string[] assetParts = fieldValue.Split(',');
 				
-				//We'll use the GUID instead of the filename to get the asset.
-				if (assetParts.Length == 3)
+				//Expected format:
+				//   Asset/Path/Comes/First, AssetName, GUID
+				if (assetParts.Length >= 1)
 				{
-					string guid = assetParts[2].Trim();
+					string assetPath = assetParts[0].Trim();
 					
-					Object[] assets = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GUIDToAssetPath(guid));
-					
-					string assetName = assetParts[1].Trim();
-				
-					foreach(Object asset in assets)
+					//We'll use the GUID instead of the filename to get the asset.
+					if (assetParts.Length >= 3)
 					{
-						if (asset.GetType() == type && asset.name == assetName)
+						string guid = assetParts[2].Trim();
+						
+						assetPath = AssetDatabase.GUIDToAssetPath(guid);
+					}
+					
+					//If there is an assetname defined, we'll search all assets at path instead
+					//of using the root object.
+					if (assetParts.Length >= 2)
+					{
+						Object[] assets = AssetDatabase.LoadAllAssetsAtPath(assetPath);
+						
+						string assetName = assetParts[1].Trim();
+					
+						foreach(Object asset in assets)
 						{
-							parameter = asset;
-							break;
+							if (asset.GetType() == type && asset.name == assetName)
+							{
+								parameter = asset;
+								break;
+							}
 						}
+					}
+					else
+					{
+						//Just use whatever the assetpath resolves to if no assetname is defined.
+						parameter = AssetDatabase.LoadAssetAtPath(assetPath, type);
 					}
 				}
 			}
