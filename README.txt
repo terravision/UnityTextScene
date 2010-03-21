@@ -85,3 +85,7 @@ In random order:
 *Probably more.
 
 Good luck, and thanks for trying it out!
+
+----About UnityTextScene
+UnityTextScene was an internal project at serious games studio TerraVision (http://www.terravision.no), which was decided to be shared with the Unity community, for further development.
+
