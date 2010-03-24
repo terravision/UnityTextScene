@@ -220,6 +220,38 @@ public class TextSceneMonitor
 			
 			if (saveAndReload.Length > 0 && saveAndReloadTimer <= 0)
 			{
+                ///FIXME: Unity sometimes puts a lock on the scenes we try to save, this is a CRUEL way to
+                ///get around it. This problem seems to be a lot more frequent on Windows than on MacOSX.
+                ///
+                ///Repro-steps: *Comment out the try/catch
+                ///             *Clean out tempscenes-folder.
+                ///             *Open up a scene (LEVEL1) from build settings, hit play
+                ///             *Answer "yes" to the dialog box whining about invalid build settings
+                ///             *Hit play again, once it has completed doing its stuff.
+                ///             *While playing, do something to make the game
+                ///              change to another level (LEVEL2).
+                ///             *Stop playing, you should now be back in the level where you
+                ///              hit play from.
+                ///             *Try to switch to the level you switched to in-game (LEVEL2).
+                ///             *You should, after the progress bar has completed, be prompted
+                ///              with an error saying Unity could not move file from Temp/Tempfile
+                ///             
+                try
+                {
+                    FileStream f = File.OpenWrite(saveAndReload);
+                    f.Close();
+                }
+                catch
+                {
+                    Debug.LogWarning("HACK: Getting around 'access denied' on temp files!");
+
+                    //HACK: This seems to make Unity release the file so we can try to save it in a new go.
+                    EditorApplication.OpenScene(saveAndReload);
+
+                    TextSceneDeserializer.Load(EditorHelper.GetProjectFolder() + TextScene.TempToTextSceneFile(EditorApplication.currentScene), saveAndReloadCallback);
+                    return;
+                }
+
 				EditorApplication.SaveScene(saveAndReload);
 				EditorApplication.OpenScene(saveAndReload);
 

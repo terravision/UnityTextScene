@@ -1,1 +1,2 @@
 scene Assets/Scenes/scenedemo.txt
+scene Assets/Scenes/otherscenedemo.txt
