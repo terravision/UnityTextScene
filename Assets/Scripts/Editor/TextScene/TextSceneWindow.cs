@@ -13,6 +13,7 @@ using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
 using System;
+using System.Text;
 
 
 /// <summary>
@@ -34,6 +35,8 @@ public class TextSceneWindow : EditorWindow
 	DateTime loadedBuildSettingsTime;
 	
 	List<string> scenes = new List<string>();
+
+    Vector2 scroll = Vector2.zero;
 	
 	void LoadSettings()
 	{
@@ -45,8 +48,10 @@ public class TextSceneWindow : EditorWindow
     void OnGUI () 
 	{
 		GUILayout.BeginVertical();
-		
-		GUILayout.Label("Scenes to build");
+
+        scroll = GUILayout.BeginScrollView(scroll);
+
+        GUILayout.Label("Scenes to build");
 		
 		foreach(string scene in scenes)
 		{
@@ -143,13 +148,32 @@ public class TextSceneWindow : EditorWindow
 
         if (GUILayout.Button("Validate Settings", GUILayout.MaxWidth(100)))
         {
-            if (TextScene.ValidateBuildSettings())
+			List<string> invalidScenes;
+			
+            if (TextScene.ValidateBuildSettings(out invalidScenes))
                 EditorUtility.DisplayDialog("Valid settings", "The build settings seem valid enough", "OK");
             else
-                EditorUtility.DisplayDialog("Validation failed", "There were errors in validation - try running 'Build Temp' to fix them up, or inspect the console for further hints.", "OK");   
+			{
+				StringBuilder sb = new StringBuilder();
+				
+				sb.Append("There were errors in validation: \n");
+				
+				foreach(string scene in invalidScenes)	
+				{
+					sb.Append("   ");
+					sb.Append(scene);
+					sb.Append('\n');
+				}
+				
+				sb.Append("Try running 'Build Temp' to fix them up, or inspect the console for further hints.");
+				
+                EditorUtility.DisplayDialog("Validation failed", sb.ToString(), "OK");
+			}
         }
-		
-		EditorGUILayout.EndVertical();
+
+        GUILayout.EndScrollView();
+
+        GUILayout.EndVertical();
     }
 	
 	void OnHierarchyChange()
@@ -181,15 +205,5 @@ public class TextSceneWindow : EditorWindow
 				loadedBuildSettingsTime = buildSettingsTime;
 			}
 		}
-	}
-	
-	private void BuildWindows()
-	{
-		TextScene.Build(BuildTarget.StandaloneWindows);
-	}
-	
-	private void BuildOSXUniversal()
-	{
-		TextScene.Build(BuildTarget.StandaloneOSXUniversal);
 	}
 }

@@ -337,7 +337,7 @@ public class TextSceneSerializer
 			//HACK. Fix this gracefully.
 			if (comp is ParticleEmitter)
 			{
-				EditorUtility.DisplayDialog("Warning", "The component " + comp.GetType().ToString() + " cannot be saved. You can get around this by making the object " + go.name + " into a prefab and drop that into the scene instead", "OK");
+				EditorUtility.DisplayDialog("Warning", "The component " + comp.GetType().ToString() + " cannot be saved. You can get around this by making the object " + Helper.GetFullName(go) + " into a prefab and drop that into the scene instead", "OK");
 				
 				Debug.LogWarning("Skipping abstract component: " + comp.GetType().ToString(), go);
 				

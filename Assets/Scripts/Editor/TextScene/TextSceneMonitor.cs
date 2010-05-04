@@ -8,6 +8,174 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Timers;
+using System.Collections.Generic;
+using System.Text;
+
+/// <summary>
+/// Class that saves and loads a binary temp file for the TextScene system. It delays each
+/// operation by a set amount of frames because it seems to make the operation a lot
+/// more stable :S
+/// </summary>
+class TextSceneTempCreator
+{
+    public enum Status
+    {
+        Working = 0,
+        Complete,
+        Failed
+    }
+
+    enum State
+    {
+        SaveTemp = 0,
+        CreateNew,
+        LoadTemp
+    }
+
+
+    private const float SAVE_AND_RELOAD_FRAMES = 20.0f;
+
+    //HACK: To get around bug with save/load instantly after instantiating prefabs.
+    private int saveAndReloadTimer = 0;
+    private string saveAndReload = "";
+    private TextSceneDeserializer.TempSceneSaved saveAndReloadCallback = null;
+
+    State state;
+
+    public TextSceneTempCreator(string scene, TextSceneDeserializer.TempSceneSaved callback)
+    {
+        state = State.SaveTemp;
+
+        saveAndReloadTimer = Mathf.RoundToInt(SAVE_AND_RELOAD_FRAMES);
+        saveAndReload = scene;
+        saveAndReloadCallback = callback;
+    }
+
+    public Status Update()
+    {
+        if (saveAndReload.Length == 0)
+        {
+            Debug.LogError("Invalid saveandreload name! Cancelling load/save process...");
+            return Status.Failed;
+        }
+
+        if (saveAndReloadTimer > 0)
+        {
+            EditorUtility.DisplayProgressBar("Creating temp...", "Creating binary temp file for TextScene: " + state.ToString(), 1.0f - saveAndReloadTimer / SAVE_AND_RELOAD_FRAMES);
+
+            saveAndReloadTimer--;
+            return Status.Working;
+        }
+        else
+        {
+            if (state == State.SaveTemp)
+            {
+                Debug.Log("SaveAndReload: " + saveAndReload);
+
+                ///FIXME: Unity sometimes puts a lock on the scenes we try to save, this is a CRUEL way to
+                ///get around it.
+                ///
+                ///Repro-steps: *Comment out the try/catch
+                ///             *Clean out tempscenes-folder.
+                ///             *Open up a scene (LEVEL1) from build settings, hit play
+                ///             *While playing, do something to make the game
+                ///              change to another level (LEVEL2).
+                ///             *Stop playing, you should now be back in the level where you
+                ///              hit play from.
+                ///             *Try to switch to the level you switched to in-game (LEVEL2).
+                ///             *You should, after the progress bar has completed, be prompted
+                ///              with an error saying Unity could not move file from Temp/Tempfile
+                ///             
+                try
+                {
+                    FileStream f = File.OpenWrite(saveAndReload);
+                    f.Close();
+                }
+                catch
+                {
+                    Debug.LogWarning("HACK: Getting around 'access denied' on temp files!");
+
+                    //HACK: This seems to make Unity release the file so we can try to save it in a new go.
+                    if (!EditorApplication.OpenScene(saveAndReload))
+                    {
+                        //Uh oh.
+                        Debug.LogError("HACK failed! What to do next?");
+                        EditorUtility.ClearProgressBar();
+                        return Status.Failed;
+                    }
+
+                    TextSceneDeserializer.Load(EditorHelper.GetProjectFolder() + TextScene.TempToTextSceneFile(EditorApplication.currentScene), saveAndReloadCallback);
+                    return Status.Working;
+                }
+
+                if (!EditorApplication.SaveScene(saveAndReload))
+                {
+                    Debug.LogError("Failed to save temp: " + saveAndReload);
+
+
+                    if (EditorUtility.DisplayDialog("ERROR", "Failed to save temp (" + saveAndReload + ") - try again?", "Yes", "No"))
+                        saveAndReloadTimer = Mathf.RoundToInt(SAVE_AND_RELOAD_FRAMES);
+                    else
+                        return Status.Failed;
+
+
+                    EditorUtility.ClearProgressBar();
+                    return Status.Working;
+                }
+
+                state = State.CreateNew;
+                saveAndReloadTimer = Mathf.RoundToInt(SAVE_AND_RELOAD_FRAMES);
+                return Status.Working;
+            }
+            else if (state == State.CreateNew)
+            {
+                EditorApplication.NewScene();
+
+                state = State.LoadTemp;
+                saveAndReloadTimer = Mathf.RoundToInt(SAVE_AND_RELOAD_FRAMES);
+                return Status.Working;
+            }
+            else if (state == State.LoadTemp)
+            {
+                if (!EditorApplication.OpenScene(saveAndReload))
+                {
+                    Debug.LogError("Failed to load temp: " + saveAndReload);
+
+                    if (EditorUtility.DisplayDialog("ERROR", "Failed to load temp (" + saveAndReload + ") - try again?", "Yes", "No"))
+                        saveAndReloadTimer = Mathf.RoundToInt(SAVE_AND_RELOAD_FRAMES);
+                    else
+                        return Status.Failed;
+
+                    EditorUtility.ClearProgressBar();
+                    return Status.Working;
+                }
+
+                string writtenFile = EditorHelper.GetProjectFolder() + EditorApplication.currentScene;
+
+                DateTime writtenTime = File.GetLastWriteTime(writtenFile);
+
+                Debug.Log("Wrote temp file at " + writtenTime);
+
+                TextSceneMonitor.Instance.SetCurrentScene(EditorHelper.GetProjectFolder() + TextScene.TempToTextSceneFile(EditorApplication.currentScene));
+
+                saveAndReload = "";
+
+                EditorUtility.ClearProgressBar();
+
+                return Status.Complete;
+            }
+        }
+
+        Debug.LogError("Failing....");
+        return Status.Failed;
+    }
+
+    public void InvokeCallback()
+    {
+        if (saveAndReloadCallback != null)
+            saveAndReloadCallback();
+    }
+}
 
 /// <summary>
 /// Class monitoring the state of TextScenes and user action. Tries to identify situations where
@@ -21,6 +189,8 @@ using System.Timers;
 [Serializable]
 public class TextSceneMonitor
 {
+    TextSceneTempCreator process;
+
 	private static TextSceneMonitor instance;
 	//private static System.Timers.Timer timer;
 	
@@ -53,12 +223,28 @@ public class TextSceneMonitor
     {
         if (EditorApplication.isPlayingOrWillChangePlaymode)
         {
-            if (!TextScene.ValidateBuildSettings())
+			List<string> invalidScenes;
+			
+            if (!TextScene.ValidateBuildSettings(out invalidScenes))
             {
                 EditorApplication.isPlaying = false;
+				
+				
+				StringBuilder sb = new StringBuilder();
+				
+				sb.Append("Errors were found while validating Build Settings: \n");
+				
+				foreach(string scene in invalidScenes)	
+				{
+					sb.Append("   ");
+					sb.Append(scene);
+					sb.Append('\n');
+				}
+				
+				sb.Append("Your levels may not switch correctly in play-mode! Do you want to fix up any outdated/missing temp file issues now?");
 
-                if (EditorUtility.DisplayDialog("Build settings", "Errors were found while validating Build Settings. Your levels may not switch correctly in play-mode! Do you want to fix up any outdated/missing temp file issues now?", "Yes", "No"))
-                    TextScene.BuildTempScenes();
+                if (EditorUtility.DisplayDialog("Build settings", sb.ToString(), "Yes", "No"))
+                    TextScene.BuildTempScenes(invalidScenes);
             }
         }
     }
@@ -114,10 +300,7 @@ public class TextSceneMonitor
 	//Current scene open. If this changes unexpectedly, the user will be notified.
 	private string alarmingEditorScene;
 	
-    //HACK: To get around bug with save/load instantly after instantiating prefabs.
-	private int saveAndReloadTimer = 0;
-	private string saveAndReload = "";
-	private TextSceneDeserializer.TempSceneSaved saveAndReloadCallback = null;
+    
 	
 	/// <summary>
 	/// Creates a new TextSceneMonitor and reads in relevant values from PlayerPrefs (such as
@@ -125,6 +308,8 @@ public class TextSceneMonitor
 	/// </summary>
 	public TextSceneMonitor()
 	{
+        process = null;
+
 		currentScene = PlayerPrefs.GetString("TextSceneMonitorCurrentScene", "");
 
 		alarmingEditorScene = PlayerPrefs.GetString("TextSceneAlarmingEditorScene", "");
@@ -191,15 +376,11 @@ public class TextSceneMonitor
 		return currentScene;
 	}
 	
-	private const float SaveAndReloadFrames = 5.0f;
-	
 	public void DoSaveAndReload(string scene, TextSceneDeserializer.TempSceneSaved callback)
 	{
-		//Must wait a couple of frames before we do the save for prefabs to behave correctly.
-		//TODO: Report bug.
-		saveAndReloadTimer = Mathf.RoundToInt(SaveAndReloadFrames);
-		saveAndReload = scene;
-		saveAndReloadCallback = callback;
+        //Must wait a couple of frames before we do the save for prefabs to behave correctly.
+        //TODO: Report bug.
+        process = new TextSceneTempCreator(scene, callback);
 	}
 	
 	/// <summary>
@@ -211,70 +392,35 @@ public class TextSceneMonitor
 	{
 		//HACK: To get around bug (TOOD: Insert case #) where Save immediately
 		//      after instantiating prefabs results in weird behaviour.
-		if (saveAndReloadTimer > 0)
+        if (process != null)
 		{
-			saveAndReloadTimer--;
-		
-			EditorUtility.DisplayProgressBar("Saving...", "Saving binary temp file for TextScene", 1.0f - saveAndReloadTimer/SaveAndReloadFrames);
-			
-			
-			if (saveAndReload.Length > 0 && saveAndReloadTimer <= 0)
-			{
-                ///FIXME: Unity sometimes puts a lock on the scenes we try to save, this is a CRUEL way to
-                ///get around it. This problem seems to be a lot more frequent on Windows than on MacOSX.
-                ///
-                ///Repro-steps: *Comment out the try/catch
-                ///             *Clean out tempscenes-folder.
-                ///             *Open up a scene (LEVEL1) from build settings, hit play
-                ///             *Answer "yes" to the dialog box whining about invalid build settings
-                ///             *Hit play again, once it has completed doing its stuff.
-                ///             *While playing, do something to make the game
-                ///              change to another level (LEVEL2).
-                ///             *Stop playing, you should now be back in the level where you
-                ///              hit play from.
-                ///             *Try to switch to the level you switched to in-game (LEVEL2).
-                ///             *You should, after the progress bar has completed, be prompted
-                ///              with an error saying Unity could not move file from Temp/Tempfile
-                ///             
-                try
-                {
-                    FileStream f = File.OpenWrite(saveAndReload);
-                    f.Close();
-                }
-                catch
-                {
-                    Debug.LogWarning("HACK: Getting around 'access denied' on temp files!");
+            TextSceneTempCreator.Status status = process.Update();
 
-                    //HACK: This seems to make Unity release the file so we can try to save it in a new go.
-                    EditorApplication.OpenScene(saveAndReload);
+            switch (status)
+            {
+                case TextSceneTempCreator.Status.Failed:
+                    Debug.LogError("Creating temp files failed!");
+                    process = null;
+                    break;
+                case TextSceneTempCreator.Status.Complete:
+                    Debug.Log("Creating temp files succeeded!");
 
-                    TextSceneDeserializer.Load(EditorHelper.GetProjectFolder() + TextScene.TempToTextSceneFile(EditorApplication.currentScene), saveAndReloadCallback);
-                    return;
-                }
+                    //FIXME: Either do this, or get a reference to the delegate and call
+                    //       if after clearing tempCreator. The callback might
+                    //       end up setting the tempCreator again, typically in a build-cycle,
+                    //       for example.
+                    TextSceneTempCreator tempCreatorRef = process;
+                    
+                    process = null;
 
-				EditorApplication.SaveScene(saveAndReload);
-				EditorApplication.OpenScene(saveAndReload);
+                    tempCreatorRef.InvokeCallback();
 
-                string writtenFile = EditorHelper.GetProjectFolder() + EditorApplication.currentScene;
+                    break;
+                default:
+                break;
+            }
 
-                DateTime writtenTime = File.GetLastWriteTime(writtenFile);
-
-                Debug.Log("Wrote temp file at " + writtenTime);
-			
-				TextSceneMonitor.Instance.SetCurrentScene(EditorHelper.GetProjectFolder() + TextScene.TempToTextSceneFile(EditorApplication.currentScene));
-				
-				saveAndReload = "";
-				
-				EditorUtility.ClearProgressBar();
-				
-				TextSceneDeserializer.TempSceneSaved callbackCopy = saveAndReloadCallback;
-				saveAndReloadCallback = null;
-				
-				if (callbackCopy != null)
-					callbackCopy();
-			}
-			
-			return;
+            return;
 		}
 		
         //Did the user create a new scene?

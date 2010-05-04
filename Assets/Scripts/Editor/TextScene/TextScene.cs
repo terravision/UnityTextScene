@@ -283,12 +283,13 @@ public static class TextScene
     }
 
     //TODO: Finish up and make public!
-    public static bool ValidateBuildSettings()
+    public static bool ValidateBuildSettings(out List<string> invalidScenes)
     {
         SyncBuildSettings();
 
         List<string> sceneList = ReadScenes();
 
+		invalidScenes = new List<string>();
 
         foreach (string scene in sceneList)
         {
@@ -306,7 +307,10 @@ public static class TextScene
                     TextScene.RemoveSceneFromBuild(scene);
                 }
                 else
-                    return false;
+				{
+                    invalidScenes.Add(scene);
+					continue;
+				}
             }
             else
             {
@@ -323,7 +327,8 @@ public static class TextScene
                     //if (EditorUtility.DisplayDialog("Missing temp file", "Missing temp file for '" + scene + "' - do you want to generate it now?", "Yes", "No"))
                     //    TextSceneDeserializer.LoadSafe(absoluteTextScene);
 
-                    return false;
+                    invalidScenes.Add(scene);
+					continue;
                 }
                 else
                 {
@@ -339,13 +344,14 @@ public static class TextScene
                         //if (EditorUtility.DisplayDialog("Outdated temp file", "Outdated temp file for '" + scene + "' - do you want to update it now?", "Yes", "No"))
                         //    TextSceneDeserializer.LoadSafe(absoluteTextScene);
 
-                        return false;
+                        invalidScenes.Add(scene);
+						continue;
                     }
                 }
             }
         }
 
-        return true;
+        return invalidScenes.Count == 0;
     }
 	
 	/// <summary>
@@ -386,6 +392,11 @@ public static class TextScene
 		new TextSceneBuilder(path, buildTarget);
 	}
 	
+	public static void BuildTempScenes(List<string> scenes)
+	{
+		new TextSceneBuilder(null, BuildTarget.PlayerDataFolderForDevelopment, scenes);
+	}
+	
 	public static void BuildTempScenes()
 	{
 		//TODO: Get rid of unused parameters in constructor.
@@ -401,9 +412,15 @@ class TextSceneBuilder
 	private string buildPath;
 	private BuildTarget buildTarget;
 	
-	public TextSceneBuilder(string buildPath, BuildTarget buildTarget)
+	public TextSceneBuilder(string buildPath, BuildTarget buildTarget) : this(buildPath, buildTarget, null)
 	{
-		List<string> sceneList = TextScene.ReadScenes();
+		
+	}
+	
+	public TextSceneBuilder(string buildPath, BuildTarget buildTarget, List<string> sceneList)
+	{
+		if (sceneList == null)
+			sceneList = TextScene.ReadScenes();
 
 		if (sceneList.Count == 0)
 		{

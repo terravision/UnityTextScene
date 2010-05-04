@@ -303,47 +303,55 @@ public class TextSceneDeserializer
     /// <summary>
     /// Loads objects from TextScene file into the currently open scene.
     /// </summary>
-	public void LoadScene(string path)
+	public bool LoadScene(string path)
 	{
-		StreamReader fileStream = File.OpenText(path);
-
-
-		gameObjects = new Queue<GameObject>();
-		gameComponents = new Queue<Component>();
-		
-		SetupBuiltinMeshes();
-		
-	    //We're doing this in two passes - first pass simply creates all objects and
-        //components, the second pass resolves links and assigns them (the second pass
-        //is necessary for in-scene links, so we're just handling everything in there,
-        //even prefab and other asset links).
-		currentPass = Pass.CreateObjects;
-		Deserialize(fileStream, container);
-
-		fileStream.Close();
-
-        GameObject[] gameObjectArray = gameObjects.ToArray();
-        Component[] gameComponentArray = gameComponents.ToArray();
-		
-		fileStream = File.OpenText(path);
-		
-		currentPass = Pass.ValueAssignment;
-		Deserialize(fileStream, container);
-		
-        fileStream.Close();
-		 
-
-
-        //Don't let the user edit scene-in-scenes (aka prefabs), since
-        //we currently have no way of applying changes.
-        if (container != null)
+        try
         {
-            foreach (GameObject go in gameObjectArray)
-                go.hideFlags = HideFlags.NotEditable;
+            StreamReader fileStream = File.OpenText(path);
 
-            foreach (Component comp in gameComponentArray)
-                comp.hideFlags = HideFlags.NotEditable;
+
+            gameObjects = new Queue<GameObject>();
+            gameComponents = new Queue<Component>();
+
+            SetupBuiltinMeshes();
+
+            //We're doing this in two passes - first pass simply creates all objects and
+            //components, the second pass resolves links and assigns them (the second pass
+            //is necessary for in-scene links, so we're just handling everything in there,
+            //even prefab and other asset links).
+            currentPass = Pass.CreateObjects;
+            Deserialize(fileStream, container);
+
+            fileStream.Close();
+
+            GameObject[] gameObjectArray = gameObjects.ToArray();
+            Component[] gameComponentArray = gameComponents.ToArray();
+
+            fileStream = File.OpenText(path);
+
+            currentPass = Pass.ValueAssignment;
+            Deserialize(fileStream, container);
+
+            fileStream.Close();
+
+            //Don't let the user edit scene-in-scenes (aka prefabs), since
+            //we currently have no way of applying changes.
+            if (container != null)
+            {
+                foreach (GameObject go in gameObjectArray)
+                    go.hideFlags = HideFlags.NotEditable;
+
+                foreach (Component comp in gameComponentArray)
+                    comp.hideFlags = HideFlags.NotEditable;
+            }
         }
+        catch (System.Exception e)
+        {
+            Debug.LogError("Exception raised when loading level: " + path + " " + e.ToString());
+            return false;
+        }
+
+        return true;
 	}
 	
 	/// <summary>
@@ -495,15 +503,18 @@ public class TextSceneDeserializer
 			{
 				fullName = Helper.GetFullName(parent) + fullName;
 			}
-			
-			if (fullPath.ToLower() == recursionGuard.ToLower())
-			{
-				EditorUtility.DisplayDialog("Recursion guard", "Loading this TextScene (" + assetPath + ") into the current TextScene will throw you into an infinite recursion. Please remove the TextScene object (" + fullName + ") or change the TextScene it points to so it no longer results in a loop", "OK");
-			}
-			else
-			{
-				(new TextSceneDeserializer(go, recursionGuard)).LoadScene(fullPath);
-			}
+
+            if (fullPath.ToLower() == recursionGuard.ToLower())
+            {
+                EditorUtility.DisplayDialog("Recursion guard", "Loading this TextScene (" + assetPath + ") into the current TextScene will throw you into an infinite recursion. Please remove the TextScene object (" + fullName + ") or change the TextScene it points to so it no longer results in a loop", "OK");
+            }
+            else
+            {
+                bool result = (new TextSceneDeserializer(go, recursionGuard)).LoadScene(fullPath);
+
+                if (!result)
+                    Debug.LogError("Failed to load TextSceneObject: " + line);
+            }
 			
 			gameObjects.Enqueue(go);
 		}
@@ -1009,9 +1020,16 @@ public class TextSceneDeserializer
 			
 			if (arrayType == null)
 				arrayType = Assembly.GetAssembly(typeof(UnityEngine.Object)).GetType(fieldObjectType);
-			
-			if (arrayType == null)
-				return false;
+
+            //FIXME: Hacky way to get assembly?
+            if (arrayType == null)
+                arrayType = Assembly.GetAssembly(typeof(TextSceneObject)).GetType(fieldObjectType);
+
+            if (arrayType == null)
+            {
+                Debug.LogWarning("Found array of unresolvable type: " + fieldObjectType);
+                return false;
+            }
 			
 			System.Type arrayElementType = arrayType.GetElementType();
 			
@@ -1050,9 +1068,16 @@ public class TextSceneDeserializer
 			
 			if (complexType == null)
 				complexType = Assembly.GetAssembly(typeof(UnityEngine.Object)).GetType(fieldObjectType);
-			
-			if (complexType == null)
-				return false;
+
+            //FIXME: Hacky way to get assembly?
+            if (complexType == null)
+                complexType = Assembly.GetAssembly(typeof(TextSceneObject)).GetType(fieldObjectType);
+
+            if (complexType == null)
+            {
+                Debug.LogWarning("Failed to find type: " + fieldObjectType);
+                return false;
+            }
 			
 			parameter = System.Activator.CreateInstance(complexType);
 			
