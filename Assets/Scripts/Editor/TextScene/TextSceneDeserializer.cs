@@ -930,6 +930,16 @@ public class TextSceneDeserializer
 			{
 				primitiveType = Assembly.GetAssembly(typeof(UnityEngine.Object)).GetType(fieldObjectType);
 			}
+			if (primitiveType == null)
+			{
+				primitiveType = Assembly.GetAssembly(typeof(TextSceneObject)).GetType(fieldObjectType);
+			}
+			if (primitiveType == null)
+			{
+				Debug.LogError("No primitive type found for '" + fieldObjectType + "'");
+				return false;
+			}
+
 			
 			//Debug.Log("Handling type: " + fieldObjectType);
 			
