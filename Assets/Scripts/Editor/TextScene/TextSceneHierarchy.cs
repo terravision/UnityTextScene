@@ -590,7 +590,7 @@ public class TextSceneHierarchy : EditorWindow
         
         System.Type hierarchyWindowType = editorAssembly.GetType("UnityEditor.HierarchyWindow");
 
-        Object[] window = Object.FindObjectsOfTypeAll(hierarchyWindowType);
+        Object[] window = Resources.FindObjectsOfTypeAll(hierarchyWindowType);
 
         if (window.Length > 0)
         {

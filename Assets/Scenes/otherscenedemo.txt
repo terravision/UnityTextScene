@@ -70,19 +70,22 @@ tag Untagged layer 0
 1.00000 1.00000 1.00000
 children 0
 components 1
-  UnityEngine.Light 12
+  UnityEngine.Light 15
     property type primitive UnityEngine.LightType = Directional
-    property color primitive UnityEngine.Color = (1.000, 1.000, 1.000, 1.000)
+    property color primitive UnityEngine.Color = (1.000, 1.000, 0.000, 1.000)
     property intensity primitive System.Single = 0.5
     property shadows primitive UnityEngine.LightShadows = None
     property shadowStrength primitive System.Single = 0.8
-    property shadowConstantBias primitive System.Single = 0.07
-    property shadowObjectSizeBias primitive System.Single = 0.01
-    property attenuate primitive System.Boolean = True
+    property shadowBias primitive System.Single = 0.05
+    property shadowSoftness primitive System.Single = 4
+    property shadowSoftnessFade primitive System.Single = 1
     property range primitive System.Single = 10
     property spotAngle primitive System.Single = 30
     property renderMode primitive UnityEngine.LightRenderMode = Auto
     property cullingMask primitive System.Int32 = -1
+    property shadowConstantBias primitive System.Single = 0
+    property shadowObjectSizeBias primitive System.Single = 0
+    property attenuate primitive System.Boolean = True
 
 gameobject Links
 tag Untagged layer 0
@@ -91,8 +94,10 @@ tag Untagged layer 0
 1.00000 1.00000 1.00000
 children 0
 components 1
-  TextSceneLinkTest 4
-    field materialList array UnityEngine.Material[] = 0
+  TextSceneLinkTest 5
+    property useGUILayout primitive System.Boolean = True
+    field materialList array UnityEngine.Material[] = 1
+        asset UnityEngine.Material = Assets/Materials/CustomMaterial.mat, CustomMaterial, e9b851d350fc14be09ce3ba99babfe07
     field prefabLink asset UnityEngine.GameObject = Assets/Prefabs/Capsules.prefab, Capsules, f0529f741bc2540eea3ec100e446c639
     field colliderLink scenelink UnityEngine.BoxCollider = /Cube/Cube
     field nextScene primitive System.String = scenedemo
@@ -104,13 +109,14 @@ tag MainCamera layer 0
 1.00000 1.00000 1.00000
 children 0
 components 3
-  UnityEngine.Camera 15
+  UnityEngine.Camera 16
     property fov primitive System.Single = 60
     property near primitive System.Single = 0.3
     property far primitive System.Single = 1000
     property fieldOfView primitive System.Single = 60
     property nearClipPlane primitive System.Single = 0.3
     property farClipPlane primitive System.Single = 1000
+    property renderingPath primitive UnityEngine.RenderingPath = UsePlayerSettings
     property orthographicSize primitive System.Single = 100
     property orthographic primitive System.Boolean = False
     property isOrthoGraphic primitive System.Boolean = False

@@ -7,13 +7,13 @@ using UnityEngine;
 
 class TextSceneLinkTest : MonoBehaviour
 {
-    public Material[] materialList;
-    public GameObject goLink;
-    public Transform transformLink;
-    public GameObject prefabLink;
-    public BoxCollider colliderLink;
+    public Material[] materialList = null;
+    public GameObject goLink = null;
+    public Transform transformLink = null;
+    public GameObject prefabLink = null;
+    public BoxCollider colliderLink = null;
 
-    public string nextScene;
+    public string nextScene = null;
 
     protected void OnGUI()
     {
