@@ -385,9 +385,10 @@ public class TextSceneHierarchy : EditorWindow
 
 				
 
-                if (selected == this)
+                if (Event.current.type == EventType.repaint && selected == this)
+				{	
                     style.Draw(lineRect, false, true, true, false);
-
+				}
 
                 if (hasChildren)
                     expanded = GUI.Toggle(expandRect, expanded, GUIContent.none, Styles.foldout);

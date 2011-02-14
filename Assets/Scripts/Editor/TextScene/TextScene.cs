@@ -394,13 +394,13 @@ public static class TextScene
 	
 	public static void BuildTempScenes(List<string> scenes)
 	{
-		new TextSceneBuilder(null, BuildTarget.PlayerDataFolderForDevelopment, scenes);
+		new TextSceneBuilder(null, BuildTarget.WebPlayer, scenes);
 	}
 	
 	public static void BuildTempScenes()
 	{
 		//TODO: Get rid of unused parameters in constructor.
-		new TextSceneBuilder(null, BuildTarget.PlayerDataFolderForDevelopment);
+		new TextSceneBuilder(null, BuildTarget.WebPlayer);
 	}
 }
 
