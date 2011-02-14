@@ -58,6 +58,8 @@ Utility class that most importantly has functionality for reading/writing TextSc
 
 In random order:
 
+*Does NOT work as-is with Unity3. Manual changes need to be applied manually for the time being. Inspect error console for hints.
+
 *Pro is required (at least for the build stuff, not sure about how/if the asset reference GUID resolves will break on Unity 'regular' or using the Asset Server - the current project has External VCS enabled).
 
 *Currently, it is not possible to save and load prefabs *with instance changes*. Such changes will simply be ignored when saving, so they are not preserved.

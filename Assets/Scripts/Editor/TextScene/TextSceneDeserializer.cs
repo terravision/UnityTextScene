@@ -16,6 +16,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
+using System.Globalization;
 
 /// <summary>
 /// Class reading and populating a scene based on text-based scene files.
@@ -429,26 +430,26 @@ public class TextSceneDeserializer
         string[] floats = position.Split();
 
         transform.localPosition = new Vector3(
-            float.Parse(floats[0]),
-            float.Parse(floats[1]),
-            float.Parse(floats[2])
+            float.Parse(floats[0], CultureInfo.InvariantCulture),
+            float.Parse(floats[1], CultureInfo.InvariantCulture),
+            float.Parse(floats[2], CultureInfo.InvariantCulture)
             );
 
         floats = rotation.Split();
 
         transform.localRotation = new Quaternion(
-            float.Parse(floats[0]),
-            float.Parse(floats[1]),
-            float.Parse(floats[2]),
-            float.Parse(floats[3])
+            float.Parse(floats[0], CultureInfo.InvariantCulture),
+            float.Parse(floats[1], CultureInfo.InvariantCulture),
+            float.Parse(floats[2], CultureInfo.InvariantCulture),
+            float.Parse(floats[3], CultureInfo.InvariantCulture)
             );
 
         floats = localScale.Split();
 
         transform.localScale = new Vector3(
-            float.Parse(floats[0]),
-            float.Parse(floats[1]),
-            float.Parse(floats[2])
+            float.Parse(floats[0], CultureInfo.InvariantCulture),
+            float.Parse(floats[1], CultureInfo.InvariantCulture),
+            float.Parse(floats[2], CultureInfo.InvariantCulture)
             );
     }
 	
@@ -641,7 +642,7 @@ public class TextSceneDeserializer
 		string[] tagLayerLineElements = tagLayerLine.Trim().Split();
 		
 		go.tag = tagLayerLineElements[1];
-		go.layer = int.Parse(tagLayerLineElements[3]);
+		go.layer = int.Parse(tagLayerLineElements[3], CultureInfo.InvariantCulture);
 
         DeserializeTransform(stream, go.transform);
 
@@ -649,7 +650,7 @@ public class TextSceneDeserializer
 
         if (children.Contains("children"))
         {
-            int childrenCount = int.Parse(children.Split()[1]);
+            int childrenCount = int.Parse(children.Split()[1], CultureInfo.InvariantCulture);
 
             for (int i = 0; i < childrenCount; i++)
             {
@@ -663,7 +664,7 @@ public class TextSceneDeserializer
 		
 		if (components.Contains("components"))
 		{
-			int componentCount = int.Parse(components.Split()[1]);
+			int componentCount = int.Parse(components.Split()[1], CultureInfo.InvariantCulture);
 			
 			//TODO: Subroutine each component read.
 			for (int c = 0; c < componentCount; c++)
@@ -676,7 +677,7 @@ public class TextSceneDeserializer
 				
 				string componentName = componentSplit[1];
 				
-				int fieldCount = int.Parse(componentName);
+				int fieldCount = int.Parse(componentName, CultureInfo.InvariantCulture);
 				
 				Component comp = null;
 				
@@ -785,7 +786,7 @@ public class TextSceneDeserializer
     {
         try
         {
-            return float.Parse(s);
+            return float.Parse(s, CultureInfo.InvariantCulture);
         }
         catch
         {
@@ -950,7 +951,7 @@ public class TextSceneDeserializer
                 parameter = ConvertFloat(fieldValue);
             }
             else if (typeof(System.Int32) == primitiveType)
-                parameter = int.Parse(fieldValue);
+                parameter = int.Parse(fieldValue, CultureInfo.InvariantCulture);
             else if (typeof(System.Boolean) == primitiveType)
                 parameter = bool.Parse(fieldValue);
             else if (typeof(System.String) == primitiveType)
@@ -959,52 +960,52 @@ public class TextSceneDeserializer
             {
                 string[] v = fieldValue.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
 
-                parameter = new Vector4(float.Parse(v[0]),
-                                              float.Parse(v[1]),
-                                              float.Parse(v[2]),
-                                              float.Parse(v[3]));
+                parameter = new Vector4(float.Parse(v[0], CultureInfo.InvariantCulture),
+                                              float.Parse(v[1], CultureInfo.InvariantCulture),
+                                              float.Parse(v[2], CultureInfo.InvariantCulture),
+                                              float.Parse(v[3], CultureInfo.InvariantCulture));
             }
             else if (typeof(UnityEngine.Quaternion) == primitiveType)
             {
                 string[] v = fieldValue.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
 
-                parameter = new Quaternion(float.Parse(v[0]),
-                                              float.Parse(v[1]),
-                                              float.Parse(v[2]),
-                                              float.Parse(v[3]));
+                parameter = new Quaternion(float.Parse(v[0], CultureInfo.InvariantCulture),
+                                              float.Parse(v[1], CultureInfo.InvariantCulture),
+                                              float.Parse(v[2], CultureInfo.InvariantCulture),
+                                              float.Parse(v[3], CultureInfo.InvariantCulture));
             }
             else if (typeof(UnityEngine.Vector3) == primitiveType)
             {
                 string[] v = fieldValue.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
 
-                parameter = new Vector3(float.Parse(v[0]),
-                                              float.Parse(v[1]),
-                                              float.Parse(v[2]));
+                parameter = new Vector3(float.Parse(v[0], CultureInfo.InvariantCulture),
+                                              float.Parse(v[1], CultureInfo.InvariantCulture),
+                                              float.Parse(v[2], CultureInfo.InvariantCulture));
             }
             else if (typeof(UnityEngine.Vector2) == primitiveType)
             {
                 string[] v = fieldValue.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
 
-                parameter = new Vector2(float.Parse(v[0]),
-                                              float.Parse(v[1]));
+                parameter = new Vector2(float.Parse(v[0], CultureInfo.InvariantCulture),
+                                              float.Parse(v[1], CultureInfo.InvariantCulture));
             }
             else if (typeof(UnityEngine.Color) == primitiveType)
             {
                 string[] v = fieldValue.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
 
-                parameter = new Color(float.Parse(v[0]),
-                                              float.Parse(v[1]),
-                                              float.Parse(v[2]),
-                                              float.Parse(v[3]));
+                parameter = new Color(float.Parse(v[0], CultureInfo.InvariantCulture),
+                                              float.Parse(v[1], CultureInfo.InvariantCulture),
+                                              float.Parse(v[2], CultureInfo.InvariantCulture),
+                                              float.Parse(v[3], CultureInfo.InvariantCulture));
             }
             else if (typeof(UnityEngine.Rect) == primitiveType)
             {
                 string[] v = fieldValue.Split(separators, System.StringSplitOptions.RemoveEmptyEntries);
 
-                parameter = new Rect(float.Parse(v[0]),
-                                              float.Parse(v[1]),
-                                              float.Parse(v[2]),
-                                              float.Parse(v[3]));
+                parameter = new Rect(float.Parse(v[0], CultureInfo.InvariantCulture),
+                                              float.Parse(v[1], CultureInfo.InvariantCulture),
+                                              float.Parse(v[2], CultureInfo.InvariantCulture),
+                                              float.Parse(v[3], CultureInfo.InvariantCulture));
             }
             else if (primitiveType.IsEnum)
             {
@@ -1043,7 +1044,7 @@ public class TextSceneDeserializer
 			
 			System.Type arrayElementType = arrayType.GetElementType();
 			
-			parameter = System.Array.CreateInstance(arrayElementType, int.Parse(fieldValue));
+			parameter = System.Array.CreateInstance(arrayElementType, int.Parse(fieldValue, CultureInfo.InvariantCulture));
 		
 			
 			System.Array arrayEntries = parameter as System.Array;
@@ -1091,7 +1092,7 @@ public class TextSceneDeserializer
 			
 			parameter = System.Activator.CreateInstance(complexType);
 			
-			int members = int.Parse(fieldValue);
+			int members = int.Parse(fieldValue, CultureInfo.InvariantCulture);
 			
 			//Debug.Log("Reading complex type: " + complexType.ToString() + " members: " + members);
 			
