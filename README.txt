@@ -58,7 +58,7 @@ Utility class that most importantly has functionality for reading/writing TextSc
 
 In random order:
 
-*Does NOT work as-is with Unity3. Manual changes need to be applied manually for the time being. Inspect error console for hints.
+*This is a quick fix for the 2.x version which makes it compile and run under Unity 3.2. It has not been extensively tested, so please consider this experimental.
 
 *Pro is required (at least for the build stuff, not sure about how/if the asset reference GUID resolves will break on Unity 'regular' or using the Asset Server - the current project has External VCS enabled).
 
