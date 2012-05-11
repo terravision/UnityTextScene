@@ -11,19 +11,4 @@ TempScenes
 *.suo
 *.pidb
 *.userprefs
-Library/AssetServerCacheV3
-Library/AssetVersioning.db
-Library/BuildSettings.asset
-Library/EditorBuildSettings.asset
-Library/FailedAssetImports.txt
-Library/MonoManager.asset
-Library/ProjectUsesCompressTexturesOnImport
-Library/ScriptAssemblies
-Library/ScriptMapper
-Library/assetDatabase3
-Library/cache
-Library/expandedItems
-Library/guidmapper
-Library/metadata
-Library/unity default resources
-Library/unity editor resources
+Library
