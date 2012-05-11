@@ -41,6 +41,9 @@ public static class TextScene
 	/// </summary>
 	public static string TempToTextSceneFile(string tempScene)
 	{
+		if(tempScene.Equals(""))
+			return "";
+	
 		string textSceneFile = "Assets" + tempScene.Substring(tempScene.IndexOf('/'));
 		
 		textSceneFile = textSceneFile.Replace(".unity", ".txt");
@@ -54,6 +57,9 @@ public static class TextScene
 	/// </summary>
 	public static string TextSceneToTempBinaryFile(string textScene)
 	{
+		if(textScene.Equals(""))
+			return "";
+	
 		string tempSceneFile = "TempScenes" + textScene.Substring(textScene.IndexOf('/'));
 		
 		tempSceneFile = tempSceneFile.Replace(".txt", ".unity");
@@ -368,7 +374,7 @@ public static class TextScene
 			extension = "unity3d";
 		else if (buildTarget == BuildTarget.StandaloneWindows)
 			extension = "exe";
-		else if (buildTarget == BuildTarget.StandaloneOSXUniversal)
+		else if (buildTarget == BuildTarget.StandaloneOSXIntel)
 			extension = "app";
 		
 		if (extension.Length == 0)
@@ -394,13 +400,13 @@ public static class TextScene
 	
 	public static void BuildTempScenes(List<string> scenes)
 	{
-		new TextSceneBuilder(null, BuildTarget.PlayerDataFolderForDevelopment, scenes);
+		new TextSceneBuilder(null, BuildTarget.StandaloneGLESEmu, scenes);
 	}
 	
 	public static void BuildTempScenes()
 	{
 		//TODO: Get rid of unused parameters in constructor.
-		new TextSceneBuilder(null, BuildTarget.PlayerDataFolderForDevelopment);
+		new TextSceneBuilder(null, BuildTarget.StandaloneGLESEmu);
 	}
 }
 

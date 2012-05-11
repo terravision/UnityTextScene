@@ -117,7 +117,7 @@ public class TextSceneWindow : EditorWindow
 			
 			if (GUILayout.Button("Build OSX"))
             {
-                TextScene.Build(BuildTarget.StandaloneOSXUniversal);
+                TextScene.Build(BuildTarget.StandaloneOSXIntel);
                 GUIUtility.ExitGUI();
                 return;
             }
